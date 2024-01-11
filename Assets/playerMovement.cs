@@ -84,7 +84,7 @@ public class playerMovement : MonoBehaviour
              state = 3;
         }
 
-        if(Input.GetKeyDown(KeyCode.LeftControl))
+        if((Input.GetKeyDown(KeyCode.LeftControl) && x != 0f )||( y != 0f && Input.GetKeyDown(KeyCode.LeftControl)))
         {
             Dashing();
         }
