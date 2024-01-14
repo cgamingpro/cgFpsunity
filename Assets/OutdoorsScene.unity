@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 8157.6064, g: 8060.924, b: 8355.699, a: 1}
+  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -18098,6 +18098,7 @@ GameObject:
   - component: {fileID: 1282914077}
   - component: {fileID: 1282914078}
   - component: {fileID: 1282914079}
+  - component: {fileID: 1282914080}
   m_Layer: 0
   m_Name: weapon holder
   m_TagString: Untagged
@@ -18150,6 +18151,20 @@ MonoBehaviour:
   ammo5_3: 600
   ammo7_5: 800
   canhoot: 1
+--- !u!114 &1282914080
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282914076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0a911f324becbaf4c99e46b6911b4a6f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  swayMuliplier: 5
+  smoothsway: 5
 --- !u!1 &1317191468
 GameObject:
   m_ObjectHideFlags: 0
@@ -28146,6 +28161,8 @@ MonoBehaviour:
   recoilx: 0
   recoily: 15
   uieffect: {fileID: 745219043}
+  aimdownPosition: {x: 0, y: 0, z: 0}
+  aimdownSpeed: 0
 --- !u!4 &1554838467529590467
 Transform:
   m_ObjectHideFlags: 0
@@ -38611,6 +38628,8 @@ MonoBehaviour:
   recoilx: 0
   recoily: 0
   uieffect: {fileID: 745219043}
+  aimdownPosition: {x: 10, y: 10, z: 10}
+  aimdownSpeed: 0
 --- !u!82 &3891865819556520836
 AudioSource:
   m_ObjectHideFlags: 0

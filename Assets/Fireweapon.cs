@@ -1,3 +1,5 @@
+
+
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Collections;
@@ -44,15 +46,19 @@ public class Fireweapon : MonoBehaviour
     public float recoilx;
     public float recoily;
     public Transform uieffect;
+    public Vector3 aimdownPosition ;
+    public float aimdownSpeed;
     //1 for 5.3
     //2 for 7.5
     // Start is called before the first frame update
  
-   
+
 
     // Start is called before the first frame update
     public void Start()
-    {
+    {   
+        Quaternion desiredaimpositon   =  Quaternion.Euler(aimdownPosition);
+        Quaternion.Slerp(transform.localRotation,desiredaimpositon,aimdownSpeed * Time.deltaTime);
         audioSource = gameObject.GetComponent<AudioSource>();
         if(silenced)
         {
@@ -84,6 +90,8 @@ public class Fireweapon : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        Quaternion desiredaimpositon   =  Quaternion.Euler(aimdownPosition);
+        Quaternion.Slerp(transform.localRotation,desiredaimpositon,1f * Time.deltaTime);
      if(isReloading)
         return;
      if(Input.GetKey(KeyCode.Mouse0) && !isShooting && automode && stats.canhoot)
