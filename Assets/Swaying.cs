@@ -28,15 +28,7 @@ public class Swaying : MonoBehaviour
 
         transform.localRotation = Quaternion.Slerp(transform.localRotation,desireRotaion,smoothsway * Time.deltaTime);
 
-        float movex = Input.GetAxis("Horizontal") * swayMuliplier;
-        float movey = Input.GetAxis("Vertical") * swayMuliplier;
         
-        Quaternion rmX = Quaternion.AngleAxis(movex,Vector3.left);
-        Quaternion rmY = Quaternion.AngleAxis(mousey,Vector3.up);
-
-        Quaternion desiremove = rmX * rmX;
-
-        transform.localRotation = Quaternion.Slerp(transform.localRotation,desiremove,smoothsway * Time.deltaTime);
 
     }
 }

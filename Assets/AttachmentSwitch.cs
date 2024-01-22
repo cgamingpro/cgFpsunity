@@ -59,7 +59,7 @@ public class AttachmentSwitch : MonoBehaviour
         {
             if(i == Attachment)
             {
-                attachments.gameObject.SetActive (true);
+                attachments.gameObject.SetActive(true);
             }
             else
             {

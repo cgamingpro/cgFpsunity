@@ -1,5 +1,8 @@
 
 
+
+
+
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Collections;
@@ -37,6 +40,7 @@ public class Fireweapon : MonoBehaviour
     private bool isReloading = false;
     
     public Transform fpscamera;
+    
     private armory stats;
     private MouseLook mouseLook;
     public int ammo_type = 0;
@@ -46,8 +50,27 @@ public class Fireweapon : MonoBehaviour
     public float recoilx;
     public float recoily;
     public Transform uieffect;
-    public Vector3 aimdownPosition ;
+    public Vector3 defaultLocation;
+    public Vector3 aimdownPosition1;
+    public Vector3 aimdownPosition2;
+    public Vector3 aim2rotate;
+    public Vector3 defaultAim;
+    Vector3 defaultAimRotation;
     public float aimdownSpeed;
+    public int aimmode = 0;
+    public float aimfov;
+    public float defaultfov;
+
+    public bool isAiming;
+
+    //recoill
+    [SerializeField]public AnimationCurve kickbackCurve = AnimationCurve.EaseInOut(0f, 0f, 0f, 0f);
+    public float kickbackforce;
+    private NewCameraRecoil Recoil_Script;
+    [SerializeField]private Transform cameraRecoil;
+    float kickbackAmount;
+    Vector3 originalPosition;
+    
     //1 for 5.3
     //2 for 7.5
     // Start is called before the first frame update
@@ -56,10 +79,15 @@ public class Fireweapon : MonoBehaviour
 
     // Start is called before the first frame update
     public void Start()
-    {   
-        Quaternion desiredaimpositon   =  Quaternion.Euler(aimdownPosition);
-        Quaternion.Slerp(transform.localRotation,desiredaimpositon,aimdownSpeed * Time.deltaTime);
+    { 
+        originalPosition = transform.localPosition;
+        //camerarecoil
+        Recoil_Script = cameraRecoil.GetComponent<NewCameraRecoil>();
+        defaultfov = (fpscamera.GetComponent<Camera>()).focalLength;
+        defaultAim = transform.localPosition;
         audioSource = gameObject.GetComponent<AudioSource>();
+        defaultAimRotation = transform.localRotation.eulerAngles;
+        Debug.Log(defaultfov);
         if(silenced)
         {
             audioClip = audioClip1;
@@ -86,12 +114,40 @@ public class Fireweapon : MonoBehaviour
     {
         isReloading = false;    
     }
+     void OnDisable()
+    {
+        ReturnToDefault(0f);
+    }
 
     // Update is called once per frame
     void Update()
     {
-        Quaternion desiredaimpositon   =  Quaternion.Euler(aimdownPosition);
-        Quaternion.Slerp(transform.localRotation,desiredaimpositon,1f * Time.deltaTime);
+        if(Input.GetKeyDown(KeyCode.V))
+     {  
+        if(aimmode == 0)
+        {
+            aimmode = 1;
+            if(isAiming)
+            { 
+                 AimDownSight(aimdownPosition2,aim2rotate,aimdownSpeed,aimfov);
+            }
+        }
+        else
+        {
+            aimmode = 0;
+            if(isAiming)
+            {
+                AimDownSight(aimdownPosition1,defaultAimRotation,aimdownSpeed,aimfov);
+            }
+
+        }
+
+     }
+     if(Input.GetMouseButtonDown(1) )
+     {
+        ToggleAimDownSights();
+     }
+        
      if(isReloading)
         return;
      if(Input.GetKey(KeyCode.Mouse0) && !isShooting && automode && stats.canhoot)
@@ -119,7 +175,75 @@ public class Fireweapon : MonoBehaviour
      {
         StartCoroutine(SlowReloading());
      }
+     
+   
         
+    }
+    private IEnumerator ApplyKickback()
+    {
+        
+        float elapsedTime = 0f;
+   
+        float maxKickback = kickbackCurve.Evaluate(1f);
+
+        while (elapsedTime < .4f)
+        {
+            if(isAiming)
+            {
+                kickbackAmount = kickbackCurve.Evaluate(elapsedTime);
+                transform.localPosition = originalPosition - kickbackAmount * (kickbackforce + 25f) * transform.forward;
+
+                elapsedTime += Time.deltaTime / kickbackforce;
+                yield return null;
+
+            }
+            else if(!isAiming)
+            {
+                kickbackAmount = kickbackCurve.Evaluate(elapsedTime);
+                transform.localPosition = aimdownPosition1 - kickbackAmount * kickbackforce * transform.forward;
+
+                elapsedTime += Time.deltaTime / kickbackforce;
+                yield return null;
+            }
+           
+        }
+
+    // Ensure it reaches exactly the original position
+        transform.localPosition = originalPosition;
+    }
+    void ToggleAimDownSights()
+    {
+        isAiming = !isAiming;
+
+        if (isAiming && aimmode  == 0)
+        {
+            AimDownSight(aimdownPosition1,defaultAimRotation,aimdownSpeed * Time.deltaTime ,aimfov);
+        }
+        else if (isAiming && aimmode  == 1)
+        {
+            AimDownSight(aimdownPosition2,aim2rotate,aimdownSpeed * Time.deltaTime ,aimfov);
+        }
+        else
+        {
+            ReturnToDefault(aimdownSpeed * Time.deltaTime);
+        }
+    }
+    void AimDownSight(Vector3 newpositon,Vector3 rr,float t,float fov)
+    {
+        isAiming = true;
+        transform.localPosition = Vector3.Lerp(defaultAim,newpositon,Mathf.Clamp01(t));
+        
+        transform.localRotation = Quaternion.Lerp(transform.localRotation,Quaternion.Euler(rr),Mathf.Clamp01(t));
+        (fpscamera.GetComponent<Camera>()).focalLength = fov;
+        
+
+    }
+    void ReturnToDefault(float t)
+    {
+        isAiming = false;
+        transform.localPosition = Vector3.Lerp(transform.localPosition,defaultAim,Mathf.Clamp01(t));
+        transform.localRotation = Quaternion.Lerp(transform.localRotation,Quaternion.Euler(defaultAimRotation),Mathf.Clamp01(t));
+        (fpscamera.GetComponent<Camera>()).focalLength = defaultfov;
     }
     public void RecoilPass()
     {
@@ -131,6 +255,7 @@ public class Fireweapon : MonoBehaviour
 
         
     }
+  
      IEnumerator SlowReloading()
     {
         isReloading = true ;
@@ -184,6 +309,7 @@ public class Fireweapon : MonoBehaviour
 
         }
         isShooting = false;
+        StartCoroutine(ApplyKickback());
 
     }
     public void Shoot()
@@ -218,8 +344,8 @@ public class Fireweapon : MonoBehaviour
        {
         Debug.Log("nothing");
        }
-       RecoilPass(); 
-            
+       //RecoilPass(); 
+       Recoil_Script.RecoilFire();     
         }
         
        

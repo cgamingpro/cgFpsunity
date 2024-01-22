@@ -22,6 +22,7 @@ public class magzineAttachment : MonoBehaviour
             Debug.Log(hold);
 
         }
+        else
         {
             Debug.Log("found the erroe");
         }
